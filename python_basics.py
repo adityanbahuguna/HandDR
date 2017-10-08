@@ -63,3 +63,9 @@ plt.xlabel('x-Werte')
 plt.ylabel('y-Werte')
 plt.plot([random.randint(1, (i+1) * 10) for i in range(100)])
 plt.show()
+
+# Kurzer Test ob Tensorflow funktioniert
+import tensorflow as tf
+hello = tf.constant('Hello, TensorFlow!')
+sess = tf.Session()
+print(sess.run(hello))
