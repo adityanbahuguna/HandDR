@@ -1,7 +1,7 @@
 # Livestream: Maschinelles Lernen mit Tensorflow
 
 Projekt zur Einführung von Scientific Python, Tensorflow und GUI Programmierung mit PyQT. 
-Das Ziel ist die Erkennung von handgeschribenen Zahlen mit einer Genauigkeit von 98%+ und
+Das Ziel ist die Erkennung von handgeschriebenen Zahlen mit einer Genauigkeit von 98%+ und
 die darauf folgende Einbettung in eine PyQT Oberfläche die anhand von gezeichneten Zahlen
 diese dann erkennt.
 
