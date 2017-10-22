@@ -1,0 +1,2 @@
+model_checkpoint_path: "C:\\Users\\Jan\\ML\\Neural Network/data/model.ckpt"
+all_model_checkpoint_paths: "C:\\Users\\Jan\\ML\\Neural Network/data/model.ckpt"
