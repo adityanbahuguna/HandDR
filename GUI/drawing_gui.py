@@ -11,10 +11,24 @@ import os.path, sys
 import tensorflow as tf
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir) + '/Neural Network/')
 from load_neural_network import *
+from plotting import *
+from scipy import ndimage, convolve, misc
+from numpy import nanmean
+import numpy as np
 
 # Load the UI File
 gui_model = 'GUI.ui'
 form, base = uic.loadUiType(gui_model)
+image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir) + '/Images/'
+
+# Downsampel Resolution
+def downsample(myarr,factor,estimator=nanmean):
+    ys,xs = myarr.shape
+    crarr = myarr[:ys-(ys % int(factor)),:xs-(xs % int(factor))]
+    dsarr = estimator( np.concatenate([[crarr[i::factor,j::factor]
+        for i in range(factor)] 
+        for j in range(factor)]), axis=0) 
+    return dsarr
 
 # Point class for shapes      
 class Point:
@@ -60,7 +74,6 @@ class Shapes:
                     self.shapes[n+i].number+= 1
                 i -= 1
             i += 1
-                    
 
 class Painter(QtGui.QWidget):
     ParentLink = 0
@@ -103,7 +116,7 @@ class Painter(QtGui.QWidget):
             T = self.ParentLink.DrawingShapes.GetShape(i)
             T1 = self.ParentLink.DrawingShapes.GetShape(i+1) 
             if(T.number== T1.number):
-                pen = QtGui.QPen(QtGui.QColor(0, 0, 0), 5, QtCore.Qt.SolidLine)
+                pen = QtGui.QPen(QtGui.QColor(0, 0, 0), 10, QtCore.Qt.SolidLine)
                 painter.setPen(pen)
                 painter.drawLine(T.location.x,T.location.y,T1.location.x,T1.location.y)
         
@@ -122,19 +135,31 @@ class CreateUI(base, form):
         self.PaintPanel.close()
         self.DrawingFrame.insertWidget(0,self.PaintPanel)
         self.DrawingFrame.setCurrentWidget(self.PaintPanel)
+
+        self.label = QtGui.QLabel(self)
+        self.label.setGeometry(QtCore.QRect(460, 70, 280, 280))
+        self.pixmap = QtGui.QPixmap(image_path + str(-1) +".png")
+        self.label.setPixmap(self.pixmap)
+
         QtCore.QObject.connect(self.Clear_Button, QtCore.SIGNAL("clicked()"),self.ClearSlate)
         QtCore.QObject.connect(self.Predict_Button, QtCore.SIGNAL("clicked()"),self.PredictNumber)
-
+    # Reset Button
     def ClearSlate(self):
         self.DrawingShapes = Shapes()
         self.PaintPanel.repaint()  
-
-    def PredictNumber(self): # TODO!!!
-        print('Triggered predict')
+        self.pixmap = QtGui.QPixmap(image_path + str(-1) +".png")
+        self.label.setPixmap(self.pixmap)
+    # Predict Button
+    def PredictNumber(self): 
+        arr = np.full((280, 280), 0).astype(np.float32)               
         for shape in self.DrawingShapes.shapes:
-            print(shape.location.x, shape.location.y)
-
-    
+            arr[shape.location.y, shape.location.x] = 255
+        arr = downsample(arr, 10)
+        pred = nn_test(X_b = X_b, arr=arr)
+        print(image_path + str(pred) +".png")
+        self.pixmap = QtGui.QPixmap(image_path + str(int(pred)) +".png")
+        self.label.setPixmap(self.pixmap)
+        display_digit(arr)
         
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)

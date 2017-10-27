@@ -1,6 +1,5 @@
 # Imports
 import tensorflow as tf
-from tensorflow.examples.tutorials.mnist import input_data
 from plotting import *
 from neural_network import *
 import numpy as np
@@ -9,19 +8,11 @@ import random
 
 # Path and Dataset
 dir_path = os.path.dirname(os.path.realpath(__file__))
-mnist = input_data.read_data_sets(dir_path + '/data/', one_hot=True)
 
 # Variables
 hidden_layer_1_nodes = 500
 hidden_layer_2_nodes = 500
 output_layer_nodes = 500
-epochs = 10
-learning_rate = 0.08
-classes = 10
-batch_size = 30
-epoch_errors = []
-test_size = len(mnist.test.labels)
-examples = 20
 
 # Graph reset
 loaded_graph = tf.Graph()
@@ -67,7 +58,7 @@ def nn_model(X_b):
     return output_layer_sum
 
 # Train the Neural Network
-def nn_test(X_b):
+def nn_test(X_b=None, arr=None):
     with tf.Session(graph=loaded_graph) as sess:
         # Restore variables from disk.
         new_saver = tf.train.import_meta_graph(dir_path + "/data/model.ckpt.meta")
@@ -75,15 +66,10 @@ def nn_test(X_b):
         # Load Tensors
         X_b = loaded_graph.get_tensor_by_name('X:0')
         y_b = loaded_graph.get_tensor_by_name('y:0')
-
-        # Test Code
-        for i in range(int(len(mnist.test.images) / 100)):
-            rand_index = random.randint(1, test_size)
-            pred = nn_model(np.reshape(mnist.test.images[rand_index], (1, 784)))
-            max_val = tf.argmax(pred, 1)
-            false_result = tf.not_equal(max_val, tf.argmax(y_b, 1))
-            if sess.run(max_val) != np.argmax(mnist.test.labels[rand_index], axis=0):
-                display_digit(mnist.test.images[rand_index], mnist.test.labels[rand_index], sess.run(max_val))
+        # Make prediction
+        pred = nn_model(np.reshape(arr, (1, 784)))
+        max_val = tf.argmax(pred, 1)
+        return sess.run(tf.cast(max_val, tf.int32))
 
 if __name__ == "__main__":
     nn_test(X_b)

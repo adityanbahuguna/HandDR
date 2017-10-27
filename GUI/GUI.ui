@@ -65,7 +65,7 @@
     <string>Clear</string>
    </property>
   </widget>
-  <widget class="QStackedWidget" name="DrawingFrame_2">
+  <widget class="QStackedWidget" name="PredictionFrame">
    <property name="geometry">
     <rect>
      <x>460</x>
