@@ -15,11 +15,3 @@ diese dann erkennt.
   * Grundlagen von Python Programmierung (Schleifen, Datentypen, Liste, Funktionen)
   * Grundlagen im Bereich von Analysis und Lineare Algebra (Ableitung, Funktionen, Vektoren)
   * Optional: Erfahrung in Git und Anaconda CMD-Befehlen
-
-# Links:
-  * [Youtube Playlist](https://www.youtube.com/playlist?list=PLt_1e8h-E5LZrcvPxOEYeUaBqLJRPaO0l)
-  * [Livestream Link](https://www.youtube.com/user/FranneckLP/live)
-
-# Stream Plan:
-
-  * Jeden Freitag um 20 Uhr auf Youtube ca. 60-90min

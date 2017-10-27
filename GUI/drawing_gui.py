@@ -1,87 +1,63 @@
 ################################################
-#              Paint on a Panel                #
-#                                              #
+#                Classes by                    #
 #              By Geoff Samuel                 #
 #            www.GeoffSamuel.com               #
 #            Info@GeoffSamuel.com              #
 ################################################
-#!!!!!! PLEASE DO NOT REMOVE THIS NOTICE !!!!!!#
-################################################
-#
-#
 
-# Load in PyQt and Maya libs
+# Import Modules
 from PyQt4 import QtGui,QtCore, uic
-from os import sys
+import os.path, sys
+import tensorflow as tf
+sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir) + '/Neural Network/')
+from load_neural_network import *
 
-#Path to UI File
-uifile = 'PaintOnAPanel.ui'
-form, base = uic.loadUiType(uifile)
-        
-## My Own Point Class, simple and light weight
+# Load the UI File
+gui_model = 'GUI.ui'
+form, base = uic.loadUiType(gui_model)
+
+# Point class for shapes      
 class Point:
-    #X Coordinate Value
-    X = 0
-    #Y Coordinate Value
-    Y = 0
-    #CONSTRUCTOR
-    def __init__(self): 
-        self.X = 0
-        self.Y = 0
-    #CONSTRUCTOR - with the values to give it
-    def __init__(self, nX, nY):
-        self.X = nX
-        self.Y = nY
-    #So we can set both values at the same time
-    def Set(self,nX, nY):
-        self.X = nX
-        self.Y = nY 
+    x, y = 0, 0
+    def __init__(self, nx=0, ny=0): 
+        self.x = nx
+        self.y = ny
         
-        
-## Shape class; holds data on the drawing point
+# Single shape class
 class Shape:
-    Location = Point(0,0)
-    Width = 0.0
-    ShapeNumber = 0
-    #CONSTRUCTOR - with the values to give it
-    def __init__(self, L, W, S):
-        self.Location = L
-        self.Width = W
-        self.ShapeNumber = S
+    location = Point()
+    number = 0
+    def __init__(self, L, S):
+        self.location = L
+        self.number = S
 
-
+# Cotainer Class for all shapes
 class Shapes:
-    #Stores all the shapes
-    __Shapes = []
+    shapes = []
     def __init__(self):
-        self.__Shapes = []
-    #Returns the number of shapes being stored.
+        self.shapes = []
+    # Returns the number of shapes
     def NumberOfShapes(self):
-        return len(self.__Shapes)
-    #Add a shape to the database, recording its position,
-    #width, colour and shape relation information
-    def NewShape(self,L,W,S):
-        Sh = Shape(L,W,S)
-        self.__Shapes.append(Sh)
-    #returns a shape of the requested data.
+        return len(self.shapes)
+    # Add a shape to the database, recording its position
+    def NewShape(self,L,S):
+        shape = Shape(L,S)
+        self.shapes.append(shape)
+    # Returns a shape of the requested data.
     def GetShape(self, Index):
-        return self.__Shapes[Index]
+        return self.shapes[Index]
     #Removes any point data within a certain threshold of a point.
     def RemoveShape(self, L, threshold):
-        #do while so we can change the size of the list and it wont come back to bite me in the ass!!
         i = 0
         while True:
-            if(i==len(self.__Shapes)):
+            if(i==len(self.shapes)):
                 break 
             #Finds if a point is within a certain distance of the point to remove.
-            if((abs(L.X - self.__Shapes[i].Location.X) < threshold) and (abs(L.Y - self.__Shapes[i].Location.Y) < threshold)):
+            if((abs(L.x - self.shapes[i].location.x) < threshold) and (abs(L.y - self.shapes[i].location.y) < threshold)):
                 #removes all data for that number
-                del self.__Shapes[i]
-                #goes through the rest of the data and adds an extra
-                #1 to defined them as a seprate shape and shuffles on the effect.
-                for n in range(len(self.__Shapes)-i):
-                    self.__Shapes[n+i].ShapeNumber += 1
-                #Go back a step so we dont miss a point.
+                del self.shapes[i]
+                for n in range(len(self.shapes)-i):
+                    self.shapes[n+i].number+= 1
                 i -= 1
             i += 1
                     
@@ -90,6 +66,7 @@ class Painter(QtGui.QWidget):
     ParentLink = 0
     MouseLoc = Point(0,0)  
     LastPos = Point(0,0)  
+
     def __init__(self,parent):
         super(Painter, self).__init__()
         self.ParentLink = parent
@@ -97,63 +74,46 @@ class Painter(QtGui.QWidget):
         self.LastPos = Point(0,0) 
     #Mouse down event
     def mousePressEvent(self, event): 
-        if(self.ParentLink.Brush == True):
-            self.ParentLink.IsPainting = True
-            self.ParentLink.ShapeNum += 1
-            self.LastPos = Point(0,0)
-        else:
-            self.ParentLink.IsEraseing = True      
+        self.ParentLink.IsPainting = True
+        self.ParentLink.ShapeNum += 1
+        self.LastPos = Point(0,0)    
     #Mouse Move event        
     def mouseMoveEvent(self, event):
         if(self.ParentLink.IsPainting == True):
             self.MouseLoc = Point(event.x(),event.y())
-            if((self.LastPos.X != self.MouseLoc.X) and (self.LastPos.Y != self.MouseLoc.Y)):
+            if((self.LastPos.x != self.MouseLoc.x) and (self.LastPos.y != self.MouseLoc.y)):
                 self.LastPos =  Point(event.x(),event.y())
-                self.ParentLink.DrawingShapes.NewShape(self.LastPos,self.ParentLink.CurrentWidth,self.ParentLink.ShapeNum)
-            self.repaint()
-        if(self.ParentLink.IsEraseing == True):
-            self.MouseLoc = Point(event.x(),event.y())
-            self.ParentLink.DrawingShapes.RemoveShape(self.MouseLoc,10)     
-            self.repaint()        
-                
+                self.ParentLink.DrawingShapes.NewShape(self.LastPos, self.ParentLink.ShapeNum)
+            self.repaint()             
     #Mose Up Event         
     def mouseReleaseEvent(self, event):
         if(self.ParentLink.IsPainting == True):
             self.ParentLink.IsPainting = False
-        if(self.ParentLink.IsEraseing == True):
-            self.ParentLink.IsEraseing = False  
-    
+    # Paint Event
     def paintEvent(self,event):
         painter = QtGui.QPainter()
         painter.begin(self)
         self.drawLines(event, painter)
         painter.end()
-        
+    # Draw the line       
     def drawLines(self, event, painter):
         painter.setRenderHint(QtGui.QPainter.Antialiasing);
         
-        for i in range(self.ParentLink.DrawingShapes.NumberOfShapes()-1):
-            
+        for i in range(self.ParentLink.DrawingShapes.NumberOfShapes()-1):     
             T = self.ParentLink.DrawingShapes.GetShape(i)
-            T1 = self.ParentLink.DrawingShapes.GetShape(i+1)
-        
-            if(T.ShapeNumber == T1.ShapeNumber):
-                pen = QtGui.QPen(QtGui.QColor(0, 0, 0), T.Width/2, QtCore.Qt.SolidLine)
+            T1 = self.ParentLink.DrawingShapes.GetShape(i+1) 
+            if(T.number== T1.number):
+                pen = QtGui.QPen(QtGui.QColor(0, 0, 0), 5, QtCore.Qt.SolidLine)
                 painter.setPen(pen)
-                painter.drawLine(T.Location.X,T.Location.Y,T1.Location.X,T1.Location.Y)
+                painter.drawLine(T.location.x,T.location.y,T1.location.x,T1.location.y)
         
 #Main UI Class
 class CreateUI(base, form):
-    Brush = True
     DrawingShapes = Shapes()
-    IsPainting = False
-    IsEraseing = False
-
-    CurrentWidth = 10
-    ShapeNum = 0
-    IsMouseing = False
     PaintPanel = 0
-    #Constructor
+    IsPainting = False
+    ShapeNum = 0
+
     def __init__(self):
         super(base,self).__init__()
         self.setupUi(self)
@@ -163,10 +123,17 @@ class CreateUI(base, form):
         self.DrawingFrame.insertWidget(0,self.PaintPanel)
         self.DrawingFrame.setCurrentWidget(self.PaintPanel)
         QtCore.QObject.connect(self.Clear_Button, QtCore.SIGNAL("clicked()"),self.ClearSlate)
-            
+        QtCore.QObject.connect(self.Predict_Button, QtCore.SIGNAL("clicked()"),self.PredictNumber)
+
     def ClearSlate(self):
         self.DrawingShapes = Shapes()
         self.PaintPanel.repaint()  
+
+    def PredictNumber(self): # TODO!!!
+        print('Triggered predict')
+        for shape in self.DrawingShapes.shapes:
+            print(shape.location.x, shape.location.y)
+
     
         
 if __name__ == "__main__":

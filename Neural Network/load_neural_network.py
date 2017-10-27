@@ -77,11 +77,13 @@ def nn_test(X_b):
         y_b = loaded_graph.get_tensor_by_name('y:0')
 
         # Test Code
-        for i in range(examples):
+        for i in range(int(len(mnist.test.images) / 100)):
             rand_index = random.randint(1, test_size)
             pred = nn_model(np.reshape(mnist.test.images[rand_index], (1, 784)))
             max_val = tf.argmax(pred, 1)
-            display_digit(mnist.test.images[rand_index], mnist.test.labels[rand_index], sess.run(max_val))
+            false_result = tf.not_equal(max_val, tf.argmax(y_b, 1))
+            if sess.run(max_val) != np.argmax(mnist.test.labels[rand_index], axis=0):
+                display_digit(mnist.test.images[rand_index], mnist.test.labels[rand_index], sess.run(max_val))
 
 if __name__ == "__main__":
     nn_test(X_b)

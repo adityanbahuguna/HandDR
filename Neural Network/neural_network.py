@@ -12,7 +12,7 @@ mnist = input_data.read_data_sets(dir_path + '/data/', one_hot=True)
 hidden_layer_1_nodes = 500
 hidden_layer_2_nodes = 500
 output_layer_nodes = 500
-epochs = 10
+epochs = 15
 learning_rate = 0.08
 classes = 10
 batch_size = 30
@@ -23,14 +23,14 @@ X = tf.placeholder('float', [None, 784], name='X')
 y = tf.placeholder('float', name='y')
 # Weights Matrices
 W1 = tf.Variable(tf.truncated_normal([784, hidden_layer_1_nodes], stddev=0.01), name='W1')
-W2 = tf.Variable(tf.truncated_normal([hidden_layer_1_nodes, hidden_layer_2_nodes], stddev=0.01), name='W2')
-W3 = tf.Variable(tf.truncated_normal([hidden_layer_2_nodes, output_layer_nodes], stddev=0.01), name='W3')
-W4 = tf.Variable(tf.truncated_normal([output_layer_nodes, classes], stddev=0.01), name='W4')
+W2 = tf.Variable(tf.truncated_normal([hidden_layer_1_nodes, hidden_layer_2_nodes], stddev=0.5), name='W2')
+W3 = tf.Variable(tf.truncated_normal([hidden_layer_2_nodes, output_layer_nodes], stddev=0.5), name='W3')
+W4 = tf.Variable(tf.truncated_normal([output_layer_nodes, classes], stddev=0.5), name='W4')
 # Biases Vectors
-b1 = tf.Variable(tf.truncated_normal([hidden_layer_1_nodes], stddev=0.01), name='b1')
-b2 = tf.Variable(tf.truncated_normal([hidden_layer_2_nodes], stddev=0.01), name='b2')
-b3 = tf.Variable(tf.truncated_normal([output_layer_nodes], stddev=0.01), name='b3')
-b4 = tf.Variable(tf.truncated_normal([classes], stddev=0.01), name='b4')
+b1 = tf.Variable(tf.truncated_normal([hidden_layer_1_nodes], stddev=0.2), name='b1')
+b2 = tf.Variable(tf.truncated_normal([hidden_layer_2_nodes], stddev=0.2), name='b2')
+b3 = tf.Variable(tf.truncated_normal([output_layer_nodes], stddev=0.2), name='b3')
+b4 = tf.Variable(tf.truncated_normal([classes], stddev=0.2), name='b4')
 
 # Define the Neural Network
 def nn_model(X):
