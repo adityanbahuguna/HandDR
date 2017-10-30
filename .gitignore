@@ -1,5 +1,4 @@
 *.log
-*.png
 *.txt
 __pycache__/
 data/

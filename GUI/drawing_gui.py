@@ -30,10 +30,12 @@ def downsample(myarr,factor,estimator=nanmean):
         for j in range(factor)]), axis=0) 
     return dsarr
 
+# Take screenshot of image widget
 def take_screenshot(filename, widget):
     p = QtGui.QPixmap.grabWindow(widget.winId())
     p.save(filename, 'jpg')
 
+# Load saved image into binary numpy array
 def load_image(infilename) :
     img = ndimage.imread(infilename, mode='L')
     for i in range(len(img)):
@@ -92,6 +94,7 @@ class Shapes:
                 i -= 1
             i += 1
 
+# Class for painting widget
 class Painter(QtGui.QWidget):
     ParentLink = 0
     MouseLoc = Point(0,0)  
@@ -127,8 +130,7 @@ class Painter(QtGui.QWidget):
         painter.end()
     # Draw the line       
     def drawLines(self, event, painter):
-        painter.setRenderHint(QtGui.QPainter.Antialiasing);
-        
+        painter.setRenderHint(QtGui.QPainter.Antialiasing);     
         for i in range(self.ParentLink.DrawingShapes.NumberOfShapes()-1):     
             T = self.ParentLink.DrawingShapes.GetShape(i)
             T1 = self.ParentLink.DrawingShapes.GetShape(i+1) 
