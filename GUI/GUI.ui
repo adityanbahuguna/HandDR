@@ -15,8 +15,8 @@
   </property>
   <property name="sizePolicy">
    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-    <horstretch>0</horstretch>
-    <verstretch>0</verstretch>
+    <horstretch>100</horstretch>
+    <verstretch>100</verstretch>
    </sizepolicy>
   </property>
   <property name="minimumSize">

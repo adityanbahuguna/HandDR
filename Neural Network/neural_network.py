@@ -12,25 +12,27 @@ mnist = input_data.read_data_sets(dir_path + '/data/', one_hot=True)
 hidden_layer_1_nodes = 500
 hidden_layer_2_nodes = 500
 output_layer_nodes = 500
-epochs = 15
-learning_rate = 0.08
+epochs = 10
 classes = 10
-batch_size = 30
 epoch_errors = []
+stddev = 0.035
+learning_rate = 0.08
+batch_size = 50
+
 
 # TF Placeholders
 X = tf.placeholder('float', [None, 784], name='X')
 y = tf.placeholder('float', name='y')
 # Weights Matrices
-W1 = tf.Variable(tf.truncated_normal([784, hidden_layer_1_nodes], stddev=0.01), name='W1')
-W2 = tf.Variable(tf.truncated_normal([hidden_layer_1_nodes, hidden_layer_2_nodes], stddev=0.5), name='W2')
-W3 = tf.Variable(tf.truncated_normal([hidden_layer_2_nodes, output_layer_nodes], stddev=0.5), name='W3')
-W4 = tf.Variable(tf.truncated_normal([output_layer_nodes, classes], stddev=0.5), name='W4')
+W1 = tf.Variable(tf.truncated_normal([784, hidden_layer_1_nodes], stddev=stddev), name='W1')
+W2 = tf.Variable(tf.truncated_normal([hidden_layer_1_nodes, hidden_layer_2_nodes], stddev=stddev), name='W2')
+W3 = tf.Variable(tf.truncated_normal([hidden_layer_2_nodes, output_layer_nodes], stddev=stddev), name='W3')
+W4 = tf.Variable(tf.truncated_normal([output_layer_nodes, classes], stddev=stddev), name='W4')
 # Biases Vectors
-b1 = tf.Variable(tf.truncated_normal([hidden_layer_1_nodes], stddev=0.2), name='b1')
-b2 = tf.Variable(tf.truncated_normal([hidden_layer_2_nodes], stddev=0.2), name='b2')
-b3 = tf.Variable(tf.truncated_normal([output_layer_nodes], stddev=0.2), name='b3')
-b4 = tf.Variable(tf.truncated_normal([classes], stddev=0.2), name='b4')
+b1 = tf.Variable(tf.truncated_normal([hidden_layer_1_nodes], stddev=stddev), name='b1')
+b2 = tf.Variable(tf.truncated_normal([hidden_layer_2_nodes], stddev=stddev), name='b2')
+b3 = tf.Variable(tf.truncated_normal([output_layer_nodes], stddev=stddev), name='b3')
+b4 = tf.Variable(tf.truncated_normal([classes], stddev=stddev), name='b4')
 
 # Define the Neural Network
 def nn_model(X):
@@ -52,13 +54,13 @@ def nn_model(X):
     hidden_layer_2_sum = tf.nn.relu(hidden_layer_2_sum)
 
     output_layer_sum = tf.add(tf.matmul(hidden_layer_2_sum, output_layer['weights']), 
-                            output_layer['biases'], name="op_to_restore")
+                            output_layer['biases'])
     return output_layer_sum
 
 # Train the Neural Network
 def nn_train(X):
     pred = nn_model(X)
-    pred = tf.identity(pred, name="prediction")
+    pred = tf.identity(pred)
     cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=pred, labels=y))
     optimizer = tf.train.AdagradOptimizer(learning_rate=learning_rate).minimize(cost)
 
@@ -74,7 +76,7 @@ def nn_train(X):
                 _, c = sess.run([optimizer, cost], feed_dict={X: epoch_x, y: epoch_y})
                 epoch_loss += c
             epoch_errors.append(epoch_loss)
-            print('Epoch ', epoch, ' of ', epochs, ' with loss: ', epoch_loss)
+            print('Epoch ', epoch + 1, ' of ', epochs, ' with loss: ', epoch_loss)
 
         correct_result = tf.equal(tf.argmax(pred, 1), tf.argmax(y, 1))
         accuracy = tf.reduce_mean(tf.cast(correct_result, 'float'))
@@ -82,8 +84,6 @@ def nn_train(X):
         # Save the Model (Weights and Biases) 
         save_path = saver.save(sess, dir_path + "/data/model.ckpt")
         print("Model saved in file: %s" % save_path)  
-        # Display convergence  
-        display_convergence(epoch_errors)
 
 if __name__ == "__main__":
     nn_train(X)

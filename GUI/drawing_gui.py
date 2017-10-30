@@ -12,7 +12,7 @@ import tensorflow as tf
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir) + '/Neural Network/')
 from load_neural_network import *
 from plotting import *
-from scipy import ndimage, convolve, misc
+from scipy import ndimage, misc
 from numpy import nanmean
 import numpy as np
 
@@ -29,6 +29,23 @@ def downsample(myarr,factor,estimator=nanmean):
         for i in range(factor)] 
         for j in range(factor)]), axis=0) 
     return dsarr
+
+def take_screenshot(filename, widget):
+    p = QtGui.QPixmap.grabWindow(widget.winId())
+    p.save(filename, 'jpg')
+
+def load_image(infilename) :
+    img = ndimage.imread(infilename, mode='L')
+    for i in range(len(img)):
+        for j in range(len(img[i])):
+            if i != 0 and i != len(img) - 1 and j != 0 and j != len(img[i]) - 1:
+                if img[i][j] > 125.0:
+                    img[i][j] = 0.0
+                else:
+                    img[i][j] = 255.0    
+            else:
+                img[i][j] = 0.0
+    return img
 
 # Point class for shapes      
 class Point:
@@ -128,6 +145,7 @@ class CreateUI(base, form):
     ShapeNum = 0
 
     def __init__(self):
+        # Set up main window and widgets
         super(base,self).__init__()
         self.setupUi(self)
         self.setObjectName('Rig Helper')
@@ -135,12 +153,12 @@ class CreateUI(base, form):
         self.PaintPanel.close()
         self.DrawingFrame.insertWidget(0,self.PaintPanel)
         self.DrawingFrame.setCurrentWidget(self.PaintPanel)
-
+        # Set up Label for on hold picture
         self.label = QtGui.QLabel(self)
         self.label.setGeometry(QtCore.QRect(460, 70, 280, 280))
         self.pixmap = QtGui.QPixmap(image_path + str(-1) +".png")
         self.label.setPixmap(self.pixmap)
-
+        # Connect the Clear and Predict button
         QtCore.QObject.connect(self.Clear_Button, QtCore.SIGNAL("clicked()"),self.ClearSlate)
         QtCore.QObject.connect(self.Predict_Button, QtCore.SIGNAL("clicked()"),self.PredictNumber)
     # Reset Button
@@ -151,16 +169,14 @@ class CreateUI(base, form):
         self.label.setPixmap(self.pixmap)
     # Predict Button
     def PredictNumber(self): 
-        arr = np.full((280, 280), 0).astype(np.float32)               
-        for shape in self.DrawingShapes.shapes:
-            arr[shape.location.y, shape.location.x] = 255
+        take_screenshot('test', self.DrawingFrame)
+        arr = load_image('test').astype(np.float32)
         arr = downsample(arr, 10)
         pred = nn_test(X_b = X_b, arr=arr)
-        print(image_path + str(pred) +".png")
         self.pixmap = QtGui.QPixmap(image_path + str(int(pred)) +".png")
         self.label.setPixmap(self.pixmap)
-        display_digit(arr)
-        
+
+# Starting the GUI Application      
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
     main_window = CreateUI()

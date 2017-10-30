@@ -4,7 +4,6 @@ from plotting import *
 from neural_network import *
 import numpy as np
 import os 
-import random
 
 # Path and Dataset
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -34,8 +33,9 @@ with loaded_graph.as_default():
     new_saver = tf.train.Saver({"W1": W1_b, "W2": W2_b, "W3": W3_b, "W4": W4_b,
                                 "b1": b1_b, "b2": b2_b, "b3": b3_b, "b4": b4_b})
 
-# Define the Neural Network
+# The definition of the neural network from the training file
 def nn_model(X_b):
+    # Load the trained weights and biases into the layers
     input_layer     =    {'weights': W1_b, 'biases': b1_b}
     hidden_layer_1  =    {'weights': W2_b, 'biases': b2_b}
     hidden_layer_2  =    {'weights': W3_b, 'biases': b3_b}
@@ -54,7 +54,7 @@ def nn_model(X_b):
     hidden_layer_2_sum = tf.nn.relu(hidden_layer_2_sum)
 
     output_layer_sum = tf.add(tf.matmul(hidden_layer_2_sum, output_layer['weights']), 
-                            output_layer['biases'], name="op_to_restore")
+                            output_layer['biases'])
     return output_layer_sum
 
 # Train the Neural Network
@@ -69,6 +69,7 @@ def nn_test(X_b=None, arr=None):
         # Make prediction
         pred = nn_model(np.reshape(arr, (1, 784)))
         max_val = tf.argmax(pred, 1)
+        # Return the prediction
         return sess.run(tf.cast(max_val, tf.int32))
 
 if __name__ == "__main__":

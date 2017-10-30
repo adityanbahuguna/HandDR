@@ -1,9 +1,10 @@
+# Imports
 import numpy as np
 import matplotlib.pyplot as plt
-import tensorflow as tf
 
-def display_digit(data, label=None, pred_label=None):
-    image = data.reshape([len(data), len(data[0])])
+# Display the Digit from the image
+# If the Label and PredLabel is given display it too
+def display_digit(image, label=None, pred_label=None):
     label = np.argmax(label, axis=0)
     if pred_label is None and label is not None:
         plt.title('Label: %d' % (label))
@@ -12,11 +13,10 @@ def display_digit(data, label=None, pred_label=None):
     plt.imshow(image, cmap=plt.get_cmap('gray_r'))
     plt.show()
 
+# Display the convergence of the error while training
 def display_convergence(error):
-    if isinstance(error, list):
-        plt.plot(error)
-        plt.title('Error of the NN')
-        plt.xlabel('Epoch')
-        plt.ylabel('Error')
-        plt.show()
-        plt.savefig('error.png')
+    plt.plot(error)
+    plt.title('Error of the NN')
+    plt.xlabel('Epoch')
+    plt.ylabel('Error')
+    plt.show()
