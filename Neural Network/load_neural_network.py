@@ -58,7 +58,7 @@ def nn_model(X_b):
     return output_layer_sum
 
 # Train the Neural Network
-def nn_test(X_b=None, arr=None):
+def nn_test(X_b=None, image=None):
     with tf.Session(graph=loaded_graph) as sess:
         # Restore variables from disk.
         new_saver = tf.train.import_meta_graph(dir_path + "/data/model.ckpt.meta")
@@ -67,7 +67,7 @@ def nn_test(X_b=None, arr=None):
         X_b = loaded_graph.get_tensor_by_name('X:0')
         y_b = loaded_graph.get_tensor_by_name('y:0')
         # Make prediction
-        pred = nn_model(np.reshape(arr, (1, 784)))
+        pred = nn_model(np.reshape(image, (1, 784)))
         max_val = tf.argmax(pred, 1)
         # Return the prediction
         return sess.run(tf.cast(max_val, tf.int32))

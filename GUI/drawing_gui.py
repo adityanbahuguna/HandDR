@@ -1,8 +1,6 @@
 ################################################
-#                Classes by                    #
-#              By Geoff Samuel                 #
-#            www.GeoffSamuel.com               #
-#            Info@GeoffSamuel.com              #
+#      Point, Shapes, Paeinter Classes by      #
+#    By Geoff Samuel www.GeoffSamuel.com       #
 ################################################
 
 # Import Modules
@@ -12,9 +10,8 @@ import tensorflow as tf
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir) + '/Neural Network/')
 from load_neural_network import *
 from plotting import *
-from scipy import ndimage, misc
-from numpy import nanmean
 import numpy as np
+from scipy import ndimage
 
 # Load the UI File
 gui_model = 'GUI.ui'
@@ -22,20 +19,29 @@ form, base = uic.loadUiType(gui_model)
 image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir) + '/Images/'
 
 # Downsampel Resolution
-def downsample(myarr,factor,estimator=nanmean):
-    ys,xs = myarr.shape
-    crarr = myarr[:ys-(ys % int(factor)),:xs-(xs % int(factor))]
-    dsarr = estimator( np.concatenate([[crarr[i::factor,j::factor]
+def downsample(myimage,factor,estimator=np.nanmean):
+    ys,xs = myimage.shape
+    crimage = myimage[:ys-(ys % int(factor)),:xs-(xs % int(factor))]
+    dsimage = estimator( np.concatenate([[crimage[i::factor,j::factor]
         for i in range(factor)] 
         for j in range(factor)]), axis=0) 
-    return dsarr
+    return dsimage
 
-# Take screenshot of image widget
-def take_screenshot(filename, widget):
-    p = QtGui.QPixmap.grabWindow(widget.winId())
-    p.save(filename, 'jpg')
+# Get the Numpy imageay from the Image
+def get_image(DrawingFrame, debug_mode=False):
+    p = QtGui.QPixmap.grabWindow(DrawingFrame.winId())
+    p.save('image', 'jpg')
+    image = load_image('test').astype(np.float32)
+    image = downsample(image, 5)
+    for row in range(len(image)):
+        for col in range(len(image[row])):
+            if image[row][col] > 100.0:  
+                image[row][col] = 255.0            
+    if debug_mode:
+        display_digit(image)
+    return image
 
-# Load saved image into binary numpy array
+# Load saved image into binary numpy imageay
 def load_image(infilename) :
     img = ndimage.imread(infilename, mode='L')
     for i in range(len(img)):
@@ -73,26 +79,12 @@ class Shapes:
     def NumberOfShapes(self):
         return len(self.shapes)
     # Add a shape to the database, recording its position
-    def NewShape(self,L,S):
+    def NewShape(self, L, S):
         shape = Shape(L,S)
         self.shapes.append(shape)
     # Returns a shape of the requested data.
     def GetShape(self, Index):
         return self.shapes[Index]
-    #Removes any point data within a certain threshold of a point.
-    def RemoveShape(self, L, threshold):
-        i = 0
-        while True:
-            if(i==len(self.shapes)):
-                break 
-            #Finds if a point is within a certain distance of the point to remove.
-            if((abs(L.x - self.shapes[i].location.x) < threshold) and (abs(L.y - self.shapes[i].location.y) < threshold)):
-                #removes all data for that number
-                del self.shapes[i]
-                for n in range(len(self.shapes)-i):
-                    self.shapes[n+i].number+= 1
-                i -= 1
-            i += 1
 
 # Class for painting widget
 class Painter(QtGui.QWidget):
@@ -100,7 +92,7 @@ class Painter(QtGui.QWidget):
     MouseLoc = Point(0,0)  
     LastPos = Point(0,0)  
 
-    def __init__(self,parent):
+    def __init__(self, parent):
         super(Painter, self).__init__()
         self.ParentLink = parent
         self.MouseLoc = Point(0,0)
@@ -129,15 +121,14 @@ class Painter(QtGui.QWidget):
         self.drawLines(event, painter)
         painter.end()
     # Draw the line       
-    def drawLines(self, event, painter):
-        painter.setRenderHint(QtGui.QPainter.Antialiasing);     
+    def drawLines(self, event, painter):   
         for i in range(self.ParentLink.DrawingShapes.NumberOfShapes()-1):     
             T = self.ParentLink.DrawingShapes.GetShape(i)
             T1 = self.ParentLink.DrawingShapes.GetShape(i+1) 
             if(T.number== T1.number):
-                pen = QtGui.QPen(QtGui.QColor(0, 0, 0), 10, QtCore.Qt.SolidLine)
+                pen = QtGui.QPen(QtGui.QColor(0, 0, 0), 5, QtCore.Qt.SolidLine)
                 painter.setPen(pen)
-                painter.drawLine(T.location.x,T.location.y,T1.location.x,T1.location.y)
+                painter.drawLine(T.location.x, T.location.y, T1.location.x, T1.location.y)
         
 #Main UI Class
 class CreateUI(base, form):
@@ -171,10 +162,8 @@ class CreateUI(base, form):
         self.label.setPixmap(self.pixmap)
     # Predict Button
     def PredictNumber(self): 
-        take_screenshot('test', self.DrawingFrame)
-        arr = load_image('test').astype(np.float32)
-        arr = downsample(arr, 10)
-        pred = nn_test(X_b = X_b, arr=arr)
+        image = get_image(self.DrawingFrame, debug_mode=True)
+        pred = nn_test(X_b = X_b, image=image)
         self.pixmap = QtGui.QPixmap(image_path + str(int(pred)) +".png")
         self.label.setPixmap(self.pixmap)
 
