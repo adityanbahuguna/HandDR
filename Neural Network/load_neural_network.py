@@ -57,8 +57,30 @@ def nn_model(X_b):
                             output_layer['biases'])
     return output_layer_sum
 
-# Train the Neural Network
-def nn_test(X_b=None, image=None):
+# Test the Neural Network
+def nn_test(X_b=None):
+    from tensorflow.examples.tutorials.mnist import input_data
+    import random
+    mnist = input_data.read_data_sets(dir_path + '/data/', one_hot=True)    
+    test_size = len(mnist.test.labels)
+
+    with tf.Session(graph=loaded_graph) as sess:
+        # Restore variables from disk.
+        new_saver = tf.train.import_meta_graph(dir_path + "/data/model.ckpt.meta")
+        new_saver.restore(sess, dir_path + "/data/model.ckpt")
+        # Load Tensors
+        X_b = loaded_graph.get_tensor_by_name('X:0')
+        y_b = loaded_graph.get_tensor_by_name('y:0')
+        # Test Code
+        for i in range(int(len(mnist.test.images) / 1000)):
+            rand_index = random.randint(1, test_size)
+            pred = nn_model(np.reshape(mnist.test.images[rand_index], (1, 784)))
+            max_val = tf.argmax(pred, 1)
+            false_result = tf.not_equal(max_val, tf.argmax(y_b, 1))
+            display_digit(mnist.test.images[rand_index], mnist.test.labels[rand_index], sess.run(max_val))
+
+# Predict with the Neural Network
+def nn_predict(X_b=None, image=None):
     with tf.Session(graph=loaded_graph) as sess:
         # Restore variables from disk.
         new_saver = tf.train.import_meta_graph(dir_path + "/data/model.ckpt.meta")
@@ -70,7 +92,7 @@ def nn_test(X_b=None, image=None):
         pred = nn_model(np.reshape(image, (1, 784)))
         max_val = tf.argmax(pred, 1)
         # Return the prediction
-        return sess.run(tf.cast(max_val, tf.int32))
+        return sess.run(max_val)
 
 if __name__ == "__main__":
     nn_test(X_b)

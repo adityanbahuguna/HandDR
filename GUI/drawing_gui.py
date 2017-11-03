@@ -31,12 +31,12 @@ def downsample(myimage,factor,estimator=np.nanmean):
 def get_image(DrawingFrame, debug_mode=False):
     p = QtGui.QPixmap.grabWindow(DrawingFrame.winId())
     p.save('image', 'jpg')
-    image = load_image('test').astype(np.float32)
+    image = load_image('image').astype(np.float32)
     image = downsample(image, 5)
     for row in range(len(image)):
         for col in range(len(image[row])):
-            if image[row][col] > 100.0:  
-                image[row][col] = 255.0            
+            if image[row][col] < 100.0:  
+                image[row][col] = 0.0            
     if debug_mode:
         display_digit(image)
     return image
@@ -163,7 +163,7 @@ class CreateUI(base, form):
     # Predict Button
     def PredictNumber(self): 
         image = get_image(self.DrawingFrame, debug_mode=True)
-        pred = nn_test(X_b = X_b, image=image)
+        pred = nn_predict(X_b=X_b, image=image)
         self.pixmap = QtGui.QPixmap(image_path + str(int(pred)) +".png")
         self.label.setPixmap(self.pixmap)
 

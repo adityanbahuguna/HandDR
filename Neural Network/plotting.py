@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 # Display the Digit from the image
 # If the Label and PredLabel is given display it too
 def display_digit(image, label=None, pred_label=None):
+    if image.shape == (784,):
+        image = image.reshape((28, 28))
     label = np.argmax(label, axis=0)
     if pred_label is None and label is not None:
         plt.title('Label: %d' % (label))
