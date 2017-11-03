@@ -37,10 +37,10 @@
   <widget class="QStackedWidget" name="DrawingFrame">
    <property name="geometry">
     <rect>
-     <x>120</x>
-     <y>140</y>
-     <width>140</width>
-     <height>140</height>
+     <x>130</x>
+     <y>160</y>
+     <width>112</width>
+     <height>112</height>
     </rect>
    </property>
    <property name="frameShape">

@@ -32,13 +32,15 @@ def get_image(DrawingFrame, debug_mode=False):
     p = QtGui.QPixmap.grabWindow(DrawingFrame.winId())
     p.save('image', 'jpg')
     image = load_image('image').astype(np.float32)
-    image = downsample(image, 5)
-    for row in range(len(image)):
-        for col in range(len(image[row])):
-            if image[row][col] < 100.0:  
-                image[row][col] = 0.0            
+    image = downsample(image, 4)
     if debug_mode:
         display_digit(image)
+    for row in range(len(image)):
+        for col in range(len(image[row])):
+            if image[row][col] < 50.0:  
+                image[row][col] = 0.0    
+            if image[row][col] > 100.0:  
+                image[row][col] = 255.0 
     return image
 
 # Load saved image into binary numpy imageay
@@ -126,7 +128,7 @@ class Painter(QtGui.QWidget):
             T = self.ParentLink.DrawingShapes.GetShape(i)
             T1 = self.ParentLink.DrawingShapes.GetShape(i+1) 
             if(T.number== T1.number):
-                pen = QtGui.QPen(QtGui.QColor(0, 0, 0), 5, QtCore.Qt.SolidLine)
+                pen = QtGui.QPen(QtGui.QColor(0, 0, 0), 7, QtCore.Qt.SolidLine)
                 painter.setPen(pen)
                 painter.drawLine(T.location.x, T.location.y, T1.location.x, T1.location.y)
         
@@ -162,7 +164,7 @@ class CreateUI(base, form):
         self.label.setPixmap(self.pixmap)
     # Predict Button
     def PredictNumber(self): 
-        image = get_image(self.DrawingFrame, debug_mode=True)
+        image = get_image(self.DrawingFrame, debug_mode=False)
         pred = nn_predict(X_b=X_b, image=image)
         self.pixmap = QtGui.QPixmap(image_path + str(int(pred)) +".png")
         self.label.setPixmap(self.pixmap)

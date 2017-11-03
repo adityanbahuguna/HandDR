@@ -19,7 +19,6 @@ stddev = 0.035
 learning_rate = 0.08
 batch_size = 50
 
-
 # TF Placeholders
 X = tf.placeholder('float', [None, 784], name='X')
 y = tf.placeholder('float', name='y')
@@ -66,7 +65,7 @@ def nn_train(X):
 
     with tf.Session() as sess:
         init_op = tf.global_variables_initializer()
-        saver = tf.train.Saver()
+        #saver = tf.train.Saver()
         sess.run(init_op)
 
         for epoch in range(epochs):
@@ -82,8 +81,8 @@ def nn_train(X):
         accuracy = tf.reduce_mean(tf.cast(correct_result, 'float'))
         print('Acc: ', accuracy.eval({X:mnist.test.images, y:mnist.test.labels})) 
         # Save the Model (Weights and Biases) 
-        save_path = saver.save(sess, dir_path + "/data/model.ckpt")
-        print("Model saved in file: %s" % save_path)  
+        #save_path = saver.save(sess, dir_path + "/data/model.ckpt")
+        #print("Model saved in file: %s" % save_path)  
 
 if __name__ == "__main__":
     nn_train(X)
