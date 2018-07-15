@@ -1,17 +1,20 @@
-# Livestream: Maschinelles Lernen mit Tensorflow
+# ENGLISH: 
+## Deep Learning with TensorFlow
 
-Projekt zur Einführung von Scientific Python, Tensorflow und GUI Programmierung mit PyQT. 
-Das Ziel ist die Erkennung von handgeschriebenen Zahlen mit einer Genauigkeit von 98,5%+und
-die darauf folgende Einbettung in eine PyQT Oberfläche die anhand von gezeichneten Zahlen
-diese dann erkennt.
+With this Software, you can use (or re-train) a Convolutional Neural Network (CNN) for predicting your own written Digits in a PyQT5 GUI.
 
-# Installation:
-  * Anaconda mit Python 3 [Download](https://www.anaconda.com/download/)
-  * Visual Studio Code (IDE) [Download](https://code.visualstudio.com/download)
-  * Tensorflow r1.3 für Python [Installation](https://www.tensorflow.org/install/)
-  * PyQT4 für Python
+## Requirements:
+  * Anaconda with Python 3 [Download](https://www.anaconda.com/download/)
+  * Tensorflow 1.5 für Python [Installation](https://www.tensorflow.org/install/)
+  * PyQT5, Keras, Numpy, Scipy and Matplotlib for Python
 
-# Vorkenntnisse:
-  * Grundlagen von Python Programmierung (Schleifen, Datentypen, Liste, Funktionen)
-  * Grundlagen im Bereich von Analysis und Lineare Algebra (Ableitung, Funktionen, Vektoren)
-  * Optional: Erfahrung in Git und Anaconda CMD-Befehlen
+
+# GERMAN: 
+## Deep Learning mit TensorFlow
+
+Mit dieser Software könnt ein bereits trainiertes Convolutional Neural Network (CNN) verwenden, oder selber trainieren, um eure handgeschriebenen Ziffern zu klassifizieren. Dies wird mit einer PyQT5 GUI und dem trainierten CNN bewerkstelligt.
+
+## Requirements:
+  * Anaconda with Python 3 [Download](https://www.anaconda.com/download/)
+  * Tensorflow 1.5 für Python [Installation](https://www.tensorflow.org/install/)
+  * PyQT5, Keras, Numpy, Scipy and Matplotlib for Python
