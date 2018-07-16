@@ -4,6 +4,7 @@
 ################################################
 
 # Import Modules
+<<<<<<< HEAD
 from PyQt5 import QtGui,QtCore, uic, QtWidgets
 import os.path, sys
 import tensorflow as tf
@@ -15,11 +16,64 @@ from loadCNN import *
 from plotting import *
 from imagePreprocessing import *
 
+=======
+from PyQt4 import QtGui,QtCore, uic
+import os.path, sys
+import tensorflow as tf
+sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir) + '/Neural Network/')
+from load_neural_network import *
+from plotting import *
+import numpy as np
+from scipy import ndimage
+
+>>>>>>> 2ee283bf5650cf880ef0b75d9d857c50463c233d
 # Load the UI File
 gui_model = 'GUI.ui'
 form, base = uic.loadUiType(gui_model)
 image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir) + '/Images/'
 
+<<<<<<< HEAD
+=======
+# Downsampel Resolution
+def downsample(myimage,factor,estimator=np.nanmean):
+    ys,xs = myimage.shape
+    crimage = myimage[:ys-(ys % int(factor)),:xs-(xs % int(factor))]
+    dsimage = estimator( np.concatenate([[crimage[i::factor,j::factor]
+        for i in range(factor)] 
+        for j in range(factor)]), axis=0) 
+    return dsimage
+
+# Get the Numpy imageay from the Image
+def get_image(DrawingFrame, debug_mode=False):
+    p = QtGui.QPixmap.grabWindow(DrawingFrame.winId())
+    p.save('image', 'jpg')
+    image = load_image('image').astype(np.float32)
+    image = downsample(image, 4)
+    if debug_mode:
+        display_digit(image)
+    for row in range(len(image)):
+        for col in range(len(image[row])):
+            if image[row][col] < 50.0:  
+                image[row][col] = 0.0    
+            if image[row][col] > 100.0:  
+                image[row][col] = 255.0 
+    return image
+
+# Load saved image into binary numpy imageay
+def load_image(infilename) :
+    img = ndimage.imread(infilename, mode='L')
+    for i in range(len(img)):
+        for j in range(len(img[i])):
+            if i != 0 and i != len(img) - 1 and j != 0 and j != len(img[i]) - 1:
+                if img[i][j] > 125.0:
+                    img[i][j] = 0.0
+                else:
+                    img[i][j] = 255.0    
+            else:
+                img[i][j] = 0.0
+    return img
+
+>>>>>>> 2ee283bf5650cf880ef0b75d9d857c50463c233d
 # Point class for shapes      
 class Point:
     x, y = 0, 0
@@ -52,10 +106,18 @@ class Shapes:
         return self.shapes[Index]
 
 # Class for painting widget
+<<<<<<< HEAD
 class Painter(QtWidgets.QWidget):
     ParentLink = 0
     MouseLoc = Point(0,0)  
     LastPos = Point(0,0)  
+=======
+class Painter(QtGui.QWidget):
+    ParentLink = 0
+    MouseLoc = Point(0,0)  
+    LastPos = Point(0,0)  
+
+>>>>>>> 2ee283bf5650cf880ef0b75d9d857c50463c233d
     def __init__(self, parent):
         super(Painter, self).__init__()
         self.ParentLink = parent
@@ -100,6 +162,10 @@ class CreateUI(base, form):
     PaintPanel = 0
     IsPainting = False
     ShapeNum = 0
+<<<<<<< HEAD
+=======
+
+>>>>>>> 2ee283bf5650cf880ef0b75d9d857c50463c233d
     def __init__(self):
         # Set up main window and widgets
         super(base,self).__init__()
@@ -110,12 +176,22 @@ class CreateUI(base, form):
         self.DrawingFrame.insertWidget(0,self.PaintPanel)
         self.DrawingFrame.setCurrentWidget(self.PaintPanel)
         # Set up Label for on hold picture
+<<<<<<< HEAD
         self.label = QtWidgets.QLabel(self)
         self.label.setGeometry(QtCore.QRect(460, 70, 280, 280))
         self.pixmap = QtGui.QPixmap(image_path + str(-1) +".png")
         self.label.setPixmap(self.pixmap)
         self.Clear_Button.clicked.connect(self.ClearSlate)
         self.Predict_Button.clicked.connect(self.PredictNumber)
+=======
+        self.label = QtGui.QLabel(self)
+        self.label.setGeometry(QtCore.QRect(460, 70, 280, 280))
+        self.pixmap = QtGui.QPixmap(image_path + str(-1) +".png")
+        self.label.setPixmap(self.pixmap)
+        # Connect the Clear and Predict button
+        QtCore.QObject.connect(self.Clear_Button, QtCore.SIGNAL("clicked()"),self.ClearSlate)
+        QtCore.QObject.connect(self.Predict_Button, QtCore.SIGNAL("clicked()"),self.PredictNumber)
+>>>>>>> 2ee283bf5650cf880ef0b75d9d857c50463c233d
     # Reset Button
     def ClearSlate(self):
         self.DrawingShapes = Shapes()
@@ -123,6 +199,7 @@ class CreateUI(base, form):
         self.pixmap = QtGui.QPixmap(image_path + str(-1) +".png")
         self.label.setPixmap(self.pixmap)
     # Predict Button
+<<<<<<< HEAD
     def PredictNumber(self):
         image = get_image(self.DrawingFrame)
         pred = nn_predict(image=image)
@@ -133,6 +210,17 @@ class CreateUI(base, form):
 # Starting the GUI Application      
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
+=======
+    def PredictNumber(self): 
+        image = get_image(self.DrawingFrame, debug_mode=False)
+        pred = nn_predict(X_b=X_b, image=image)
+        self.pixmap = QtGui.QPixmap(image_path + str(int(pred)) +".png")
+        self.label.setPixmap(self.pixmap)
+
+# Starting the GUI Application      
+if __name__ == "__main__":
+    app = QtGui.QApplication(sys.argv)
+>>>>>>> 2ee283bf5650cf880ef0b75d9d857c50463c233d
     main_window = CreateUI()
     main_window.show()
     sys.exit(app.exec_())

@@ -1,9 +1,18 @@
+<<<<<<< HEAD
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import itertools
 
 # Display the Digit from the image
+=======
+# Imports
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Display the Digit from the image
+# If the Label and PredLabel is given display it too
+>>>>>>> 2ee283bf5650cf880ef0b75d9d857c50463c233d
 def display_digit(image, label=None, pred_label=None):
     if image.shape == (784,):
         image = image.reshape((28, 28))
@@ -15,6 +24,7 @@ def display_digit(image, label=None, pred_label=None):
     plt.imshow(image, cmap=plt.get_cmap('gray_r'))
     plt.show()
 
+<<<<<<< HEAD
 # Display the Digit from the image
 def display_digit_and_predictions(image, label, pred, pred_one_hot):
     if image.shape == (784,):
@@ -78,3 +88,12 @@ def make_hparam_string(learning_rate, conv_layer, fc_layer):
     conv_param = "conv_layer=" + str(conv_layer)
     fc_param = "fc_layer=" + str(fc_layer)
     return "lr_%.0E,%s,%s" % (learning_rate, conv_param, fc_param)
+=======
+# Display the convergence of the error while training
+def display_convergence(error):
+    plt.plot(error)
+    plt.title('Error of the NN')
+    plt.xlabel('Epoch')
+    plt.ylabel('Error')
+    plt.show()
+>>>>>>> 2ee283bf5650cf880ef0b75d9d857c50463c233d
