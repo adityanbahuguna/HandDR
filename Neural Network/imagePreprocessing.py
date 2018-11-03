@@ -1,52 +1,47 @@
 # Import Modules
 import numpy as np
-import math
-from scipy import ndimage
 import matplotlib.pyplot as plt
-from scipy.cluster.vq import whiten
+import cv2
+from scipy.ndimage import center_of_mass
 
-# Downsampel Resolution
-def downsample(myimage, factor, estimator=np.nanmean):
-    ys, xs = myimage.shape
-    crimage = myimage[:ys-(ys % int(factor)),:xs-(xs % int(factor))]
-    dsimage = estimator( np.concatenate([[crimage[i::factor,j::factor]
-        for i in range(factor)] 
-        for j in range(factor)]), axis=0) 
-    return dsimage
+def load(filename):
+    image = cv2.imread(filename, cv2.IMREAD_GRAYSCALE)
+    return image
 
-# Normalize image data
+def resize(image):
+    image = cv2.resize(image, (28, 28))
+    return image
+
 def normalize(image):
-    # Threshold for pixels
-    for row in range(len(image)):
-        for col in range(len(image[row])):
-            if image[row][col] < 50.0:  
-                image[row][col] = 0.0    
-            if image[row][col] > 200.0:  
-                image[row][col] = 255.0
-    # New datarange
-    image = image / 255.0 
-    image = whiten(image)
+    _, image = cv2.threshold(image, 127, 255, cv2.THRESH_BINARY_INV)
+    image = image / 255.0
     return image
 
-# Get the Numpy image from the Image
+def center(image):
+    cy, cx = center_of_mass(image)
+
+    rows, cols = image.shape
+    shiftx = np.round(cols/2.0-cx).astype(int)
+    shifty = np.round(rows/2.0-cy).astype(int)
+
+    M = np.float32([[1, 0, shiftx], [0, 1, shifty]])
+    image = cv2.warpAffine(image, M, (cols, rows))
+
+    return image
+
+def correct(image):
+    image[:,0] = 0.0
+    image[:,-1] = 0.0
+    image[0,:] = 0.0
+    image[-1,:] = 0.0
+    return image
+
 def get_image(DrawingFrame):
-    p = DrawingFrame.grab()
-    p.save('image', 'jpg')
-    image = load_image('image').astype(np.float32)
-    image = downsample(image, 4)
+    pixmap = DrawingFrame.grab()
+    pixmap.save("image", "jpg")
+    image = load("image").astype(np.float32)
     image = normalize(image)
+    image = correct(image)
+    image = center(image)
+    image = resize(image)
     return image
-
-# Load saved image into binary numpy image
-def load_image(infilename) :
-    img = ndimage.imread(infilename, mode='L')
-    for i in range(len(img)):
-        for j in range(len(img[i])):
-            if i != 0 and i != len(img) - 1 and j != 0 and j != len(img[i]) - 1:
-                if img[i][j] > 125.0:
-                    img[i][j] = 0.0
-                else:
-                    img[i][j] = 255.0    
-            else:
-                img[i][j] = 0.0
-    return img
