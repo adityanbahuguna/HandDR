@@ -1,12 +1,13 @@
 import os
 
-import numpy as np
 import matplotlib.pyplot as plt
-
-import cv2
+import numpy as np
 from scipy.ndimage import center_of_mass
 
-PROJECT_PATH = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+import cv2
+
+FILE_PATH = os.path.abspath(__file__)
+PROJECT_PATH = os.path.dirname(os.path.dirname(FILE_PATH))
 
 def load(image_path):
     image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
@@ -29,18 +30,21 @@ def center(image):
     image = cv2.warpAffine(image, M, (cols, rows))
     return image
 
-def get_image(DrawingFrame):
+def get_image(DrawingFrame, debug=False):
     pixmap = DrawingFrame.grab()
-    temp_image_path = os.path.join(PROJECT_PATH, "gui", "temp_image.jpg")
+    temp_image_path = os.path.join(PROJECT_PATH, "ressources", "imgs", "temp_image.jpg")
     pixmap.save(temp_image_path)
     image = load(temp_image_path).astype(np.float32)
     image = resize(image)
-    plt.imshow(image, cmap="gray")
-    plt.show()
+    if debug:
+        plt.imshow(image, cmap="gray")
+        plt.show()
     image = normalize(image)
-    plt.imshow(image, cmap="gray")
-    plt.show()
+    if debug:
+        plt.imshow(image, cmap="gray")
+        plt.show()
     image = center(image)
-    plt.imshow(image, cmap="gray")
-    plt.show()
+    if debug:
+        plt.imshow(image, cmap="gray")
+        plt.show()
     return image
