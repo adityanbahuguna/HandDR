@@ -8,6 +8,7 @@ FILE_PATH = os.path.abspath(__file__)
 PROJECT_PATH = os.path.dirname(os.path.dirname(FILE_PATH))
 MODEL_PATH = os.path.join(PROJECT_PATH, "ressources", "weights", "dnn_mnist.h5")
 
+
 def create_model():
     # Model params
     num_features = 784
@@ -43,6 +44,7 @@ def create_model():
         metrics=["accuracy"])
     return model
 
+
 def nn_predict(model, image=None):
     if image is not None and model is not None:
         pred = model.predict(image.reshape(1, 784))[0]
@@ -50,6 +52,7 @@ def nn_predict(model, image=None):
         return pred
     else:
         return -1
+
 
 def nn_train():
     # Dataset
@@ -81,13 +84,14 @@ def nn_train():
     model = create_model()
 
     model.fit(
-        x=x_train, 
-        y=y_train, 
+        x=x_train,
+        y=y_train,
         epochs=epochs,
         batch_size=batch_size,
         validation_data=(x_test, y_test))
 
     model.save_weights(MODEL_PATH)
+
 
 if __name__ == "__main__":
     nn_train()
